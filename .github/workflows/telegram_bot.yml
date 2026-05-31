@@ -1,0 +1,65 @@
+name: Bot Telegram Esotérico
+
+on:
+  # Agendamento automático — a cada 30 minutos, das 8h às 21h (Brasília = UTC-3)
+  # No cron, os horários são em UTC. Brasília = UTC-3, então:
+  # 8h BRT = 11h UTC | 21h BRT = 00h UTC (dia seguinte)
+  schedule:
+    - cron: "0,30 11-23 * * 1-6"   # 11h00 a 23h30 UTC = 8h00 a 20h30 BRT
+    - cron: "0 0 * * 2-7"          # 00h00 UTC = 21h00 BRT (última postagem)
+
+  # Permite rodar manualmente pelo painel do GitHub (útil para testes)
+  workflow_dispatch:
+
+jobs:
+  postar:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      # 2. Instala o Python
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 3. Instala as dependências do pyproject.toml
+      - name: Instalar dependências
+        run:  |
+            pip install --upgrade pip
+            pip install -e .
+
+      # 4. Cria o arquivo .env com os segredos do GitHub
+      - name: Criar arquivo .env
+        run: |
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+          echo "TELEGRAM_CHANNEL_ID=${{ secrets.TELEGRAM_CHANNEL_ID }}" >> .env
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+          echo "SHOPEE_AFFILIATE_LINK=${{ secrets.SHOPEE_AFFILIATE_LINK }}" >> .env
+
+      # 5. Copia a planilha final para a pasta data/
+      # (a planilha fica no repositório privado)
+      - name: Verificar planilha
+        run: |
+          if [ ! -f "data/planilha_final.xlsx" ]; then
+            echo "ERRO: data/planilha_final.xlsx não encontrada!"
+            echo "Execute concatenar.py e categorizar.py localmente e faça push da planilha."
+            exit 1
+          fi
+
+      # 6. Executa o bot
+      - name: Executar bot
+        run: python src/bot.py
+
+      # 7. Salva a planilha atualizada de volta no repositório
+      # (para registrar quais produtos já foram postados)
+      - name: Commit da planilha atualizada
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions Bot"
+          git add data/planilha_final.xlsx
+          git diff --staged --quiet || git commit -m "bot: marca produto como postado [skip ci]"
+          git push

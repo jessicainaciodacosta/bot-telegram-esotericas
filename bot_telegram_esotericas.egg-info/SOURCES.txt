@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+bot_telegram_esotericas.egg-info/PKG-INFO
+bot_telegram_esotericas.egg-info/SOURCES.txt
+bot_telegram_esotericas.egg-info/dependency_links.txt
+bot_telegram_esotericas.egg-info/requires.txt
+bot_telegram_esotericas.egg-info/top_level.txt
+src/bot.py
+src/categorizar.py
+src/concatenar.py
