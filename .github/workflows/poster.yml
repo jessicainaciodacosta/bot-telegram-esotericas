@@ -1,0 +1,104 @@
+name: 🌿 Bot Esotéricas – Poster Automático
+
+on:
+  schedule:
+    # ── Janela BRT 08:00 → 22:00, a cada 30 minutos ──────────────────
+    # GitHub Actions usa UTC. BRT = UTC-3.
+    # */30 * * * * foi removido pois disparava 24h/dia (inclusive madrugada).
+    - cron: "0 11 * * *"   # BRT 08:00
+    - cron: "30 11 * * *"  # BRT 08:30
+    - cron: "0 12 * * *"   # BRT 09:00
+    - cron: "30 12 * * *"  # BRT 09:30
+    - cron: "0 13 * * *"   # BRT 10:00
+    - cron: "30 13 * * *"  # BRT 10:30
+    - cron: "0 14 * * *"   # BRT 11:00
+    - cron: "30 14 * * *"  # BRT 11:30
+    - cron: "0 15 * * *"   # BRT 12:00
+    - cron: "30 15 * * *"  # BRT 12:30
+    - cron: "0 16 * * *"   # BRT 13:00
+    - cron: "30 16 * * *"  # BRT 13:30
+    - cron: "0 17 * * *"   # BRT 14:00
+    - cron: "30 17 * * *"  # BRT 14:30
+    - cron: "0 18 * * *"   # BRT 15:00
+    - cron: "30 18 * * *"  # BRT 15:30
+    - cron: "0 19 * * *"   # BRT 16:00
+    - cron: "30 19 * * *"  # BRT 16:30
+    - cron: "0 20 * * *"   # BRT 17:00
+    - cron: "30 20 * * *"  # BRT 17:30
+    - cron: "0 21 * * *"   # BRT 18:00
+    - cron: "30 21 * * *"  # BRT 18:30
+    - cron: "0 22 * * *"   # BRT 19:00
+    - cron: "30 22 * * *"  # BRT 19:30
+    - cron: "0 23 * * *"   # BRT 20:00
+    - cron: "30 23 * * *"  # BRT 20:30
+    - cron: "0 0 * * *"    # BRT 21:00
+    - cron: "30 0 * * *"   # BRT 21:30
+    - cron: "0 1 * * *"    # BRT 22:00
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Executar em modo dry-run (sem postar de verdade)"
+        required: false
+        default: "false"
+        type: boolean
+      max_posts:
+        description: "Número máximo de posts nesta execução"
+        required: false
+        default: "1"
+        type: string
+
+jobs:
+  poster:
+    name: Postar Produto Pendente
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "pyproject.toml"
+
+      - name: 📦 Instalar dependências
+        # O projeto usa pyproject.toml com setuptools (não Poetry).
+        # "pip install ." lê as dependências de [project.dependencies].
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: 🔑 Criar arquivo de Service Account
+        # service_account.json não é commitado — recriado aqui a partir do Secret.
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > service_account.json
+
+      - name: 📁 Criar diretório de logs
+        run: mkdir -p logs
+
+      - name: 🚀 Executar Poster
+        # O executável é main.py. MAX_POSTS_PER_RUN=1 posta 1 produto por disparo.
+        # dry_run não tem suporte nativo no main.py — ignorado quando false.
+        env:
+          TELEGRAM_TOKEN:              ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID:            ${{ secrets.TELEGRAM_CHAT_ID }}
+          GOOGLE_SHEETS_KEY:           ${{ secrets.GOOGLE_SHEETS_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: service_account.json
+          CLOUDINARY_URL:              ${{ secrets.CLOUDINARY_URL }}
+          SHOPEE_APP_ID:               ${{ secrets.SHOPEE_APP_ID }}
+          SHOPEE_SECRET_KEY:           ${{ secrets.SHOPEE_SECRET_KEY }}
+          MAX_POSTS_PER_RUN:           ${{ github.event.inputs.max_posts || '1' }}
+        run: |
+          python main.py
+
+      - name: 📋 Upload de logs (em caso de falha)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-poster-${{ github.run_id }}
+          path: logs/
+          retention-days: 7

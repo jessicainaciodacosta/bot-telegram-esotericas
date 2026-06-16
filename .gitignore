@@ -1,19 +1,26 @@
-# Variáveis secretas — NUNCA vão para o GitHub
+# Ambientes Virtuais e IDEs
 .venv/
 .vscode/
 
-.env
-
-# Arquivos temporários do Python
+# Logs e Cache
+logs/
 __pycache__/
 *.pyc
 *.pyo
 
-# Arquivos do sistema
+# Configurações e Variáveis de Ambiente
+.env
+config/shopee_session.json
+service_account.json
+
+# Arquivos de Dados
+*.xlsx
+*.csv
+*.txt
+data/*.xlsx
+*.json
+
+# Arquivos de Sistema
 .DS_Store
 Thumbs.db
-
-# Planilhas com dados sensíveis (opcional)
-data/*.xlsx
-
-
+desktop.ini
