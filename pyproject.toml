@@ -1,115 +1,49 @@
-# =============================================================
-# pyproject.toml
-# Padrão PEP 518 (build-system) + PEP 621 (metadados)
-# Fonte única de verdade: metadados, dependências e ferramentas
-# =============================================================
+[tool.poetry]
+name = "bot-esoterico-telegram"
+version = "3.0.0"
+description = "Bot Telegram Esotéricas - Arquitetura Híbrida V3"
+authors = ["Esotéricas Bot <bot@esotéricas.com>"]
+readme = "README.md"
+package-mode = false
 
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2.2"
+openpyxl = "^3.1.2"
+playwright = "^1.44.0"
+gspread = "^6.1.2"
+oauth2client = "^4.1.3"
+cloudinary = "^1.40.0"
+python-telegram-bot = {version = "^21.3", extras = ["webhooks"]}
+python-dotenv = "^1.0.1"
+pydantic-settings = "^2.3.4"
+scikit-learn = "^1.5.0"
+numpy = "^1.26.4"
+httpx = "^0.27.0"
+tenacity = "^8.4.1"
+loguru = "^0.7.2"
 
-# ── BLOCO 1: BUILD-SYSTEM ────────────────────────────────────
-#
-# Responde à pergunta: "Qual ferramenta monta este projeto?"
-#
-# setuptools  → a ferramenta padrão, já incluída no Python.
-# wheel       → formato de pacote que o pip entende.
-# Você não precisa instalar nada além do Python para isso funcionar.
-#
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
+black = "^24.4.2"
+ruff = "^0.5.0"
+mypy = "^1.10.1"
+
 [build-system]
-requires      = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
+[tool.black]
+line-length = 100
+target-version = ["py311"]
 
-# ── BLOCO 2: METADADOS DO PROJETO (PEP 621) ──────────────────
-#
-# Responde à pergunta: "O que é este projeto?"
-#
-# name            → identificador único (usado pelo pip internamente)
-# version         → versão atual do projeto
-# description     → frase curta de descrição
-# readme          → arquivo de documentação (pode criar depois)
-# requires-python → versão mínima do Python aceita
-#
-[project]
-name            = "bot-telegram-esotericas"
-version         = "1.0.0"
-description     = "Bot de achadinhos esotéricos para Telegram com afiliados Shopee"
-readme          = "README.md"
-requires-python = ">=3.11"
-
-
-# ── BLOCO 3: DEPENDÊNCIAS DE PRODUÇÃO ────────────────────────
-#
-# Substitui o requirements.txt por completo.
-#
-# O operador "~=" significa "compatível com esta versão":
-#   "pandas~=2.2.2"  →  aceita 2.2.2, 2.2.3, 2.2.4...
-#                        mas NUNCA 2.3.0 (pode quebrar o código)
-#
-# Isso é mais seguro que "==" (rígido demais) e
-# mais seguro que ">=" (permissivo demais).
-#
-dependencies = [
-    # Leitura e manipulação de planilhas Excel
-    "pandas~=2.2.2",
-
-    # Motor que o pandas usa para abrir arquivos .xlsx
-    "openpyxl~=3.1.2",
-
-    # SDK oficial para enviar mensagens e fotos ao Telegram
-    "python-telegram-bot~=20.7",
-
-    # Faz requisições HTTP (baixar imagens dos produtos)
-    "requests~=2.31.0",
-
-    # Processa e redimensiona imagens antes de enviar
-    "Pillow~=10.3.0",
-
-    # Agenda as postagens por horário (8h–21h, a cada 30 min)
-    "schedule~=1.2.1",
-
-    # Lê o arquivo .env com tokens e segredos
-    "python-dotenv~=1.0.1",
-
-    # Categoriza produtos automaticamente com IA (GPT-3.5)
-    "openai~=1.30.1",
-]
-
-
-# ── BLOCO 4: DEPENDÊNCIAS DE DESENVOLVIMENTO (opcionais) ─────
-#
-# Ferramentas que SÓ você usa localmente para desenvolver.
-# NÃO são instaladas no GitHub Actions nem por usuários finais.
-#
-# Para instalar este grupo junto com o projeto:
-#   pip install -e ".[dev]"
-#
-[project.optional-dependencies]
-dev = [
-    # Framework de testes automatizados
-    "pytest>=8.0",
-
-    # Verificador e formatador de qualidade de código
-    "ruff>=0.4",
-]
-
-
-# ── BLOCO 5: ONDE ESTÁ O CÓDIGO-FONTE ────────────────────────
-#
-# Diz ao setuptools: "procure os módulos Python na pasta src/"
-# O "src*" cobre src/ e qualquer subpasta dentro dela.
-#
-[tool.setuptools.packages.find]
-where   = ["."]
-include = ["src*"]
-
-
-# ── BLOCO 6: CONFIGURAÇÃO DO RUFF (qualidade de código) ──────
-#
-# Ruff verifica seu código em busca de erros comuns e más práticas.
-# Só é usado durante o desenvolvimento (está no grupo [dev]).
-#
-# line-length    → máximo de 100 caracteres por linha
-# target-version → garante que as regras sejam para Python 3.11
-#
 [tool.ruff]
-line-length    = 100
+line-length = 100
 target-version = "py311"
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true

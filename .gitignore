@@ -1,4 +1,7 @@
 # Variáveis secretas — NUNCA vão para o GitHub
+.venv/
+.vscode/
+
 .env
 
 # Arquivos temporários do Python
@@ -13,4 +16,4 @@ Thumbs.db
 # Planilhas com dados sensíveis (opcional)
 data/*.xlsx
 
-.venv/
+
