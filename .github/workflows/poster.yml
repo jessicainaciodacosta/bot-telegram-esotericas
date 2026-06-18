@@ -64,11 +64,11 @@ jobs:
           cache-dependency-path: "pyproject.toml"
 
       - name: 📦 Instalar dependências
-        # "pip install ." lê [project.dependencies] do pyproject.toml.
-        # Não instala o grupo [local] (Playwright, pandas, scikit-learn).
         run: |
           python -m pip install --upgrade pip
-          pip install .
+          pip install poetry
+          poetry config virtualenvs.in-project true
+          poetry install --no-root
 
       - name: 🔑 Recriar arquivo de Service Account
         # O settings.py valida que o arquivo existe em disco antes de qualquer
