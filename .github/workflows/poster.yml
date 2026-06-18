@@ -104,7 +104,7 @@ jobs:
 
           MAX_POSTS_PER_RUN:           ${{ github.event.inputs.max_posts || '1' }}
         run: |
-          python main.py
+          poetry run python main.py
 
       - name: 📋 Upload de logs (em caso de falha)
         if: failure()
