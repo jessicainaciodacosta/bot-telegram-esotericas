@@ -4,7 +4,6 @@ on:
   schedule:
     # ── Janela BRT 08:00 → 22:00, a cada 30 minutos ──────────────────
     # GitHub Actions usa UTC. BRT = UTC-3.
-    # */30 * * * * foi removido pois disparava 24h/dia (inclusive madrugada).
     - cron: "0 11 * * *"   # BRT 08:00
     - cron: "30 11 * * *"  # BRT 08:30
     - cron: "0 12 * * *"   # BRT 09:00
@@ -37,11 +36,6 @@ on:
 
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: "Executar em modo dry-run (sem postar de verdade)"
-        required: false
-        default: "false"
-        type: boolean
       max_posts:
         description: "Número máximo de posts nesta execução"
         required: false
@@ -53,6 +47,10 @@ jobs:
     name: Postar Produto Pendente
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    # Força Node.js 24 nas actions — silencia os warnings de depreciação
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: 📥 Checkout do repositório
@@ -66,14 +64,18 @@ jobs:
           cache-dependency-path: "pyproject.toml"
 
       - name: 📦 Instalar dependências
-        # O projeto usa pyproject.toml com setuptools (não Poetry).
-        # "pip install ." lê as dependências de [project.dependencies].
+        # "pip install ." lê [project.dependencies] do pyproject.toml.
+        # Não instala o grupo [local] (Playwright, pandas, scikit-learn).
         run: |
           python -m pip install --upgrade pip
           pip install .
 
-      - name: 🔑 Criar arquivo de Service Account
-        # service_account.json não é commitado — recriado aqui a partir do Secret.
+      - name: 🔑 Recriar arquivo de Service Account
+        # O settings.py valida que o arquivo existe em disco antes de qualquer
+        # coisa rodar (field_validator com sys.exit). Por isso este step precisa
+        # vir ANTES de qualquer chamada ao Python.
+        # O valor de GOOGLE_SERVICE_ACCOUNT_JSON no .env/Settings aponta para
+        # "service_account.json" na raiz — criamos exatamente lá.
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}' > service_account.json
 
@@ -81,16 +83,25 @@ jobs:
         run: mkdir -p logs
 
       - name: 🚀 Executar Poster
-        # O executável é main.py. MAX_POSTS_PER_RUN=1 posta 1 produto por disparo.
-        # dry_run não tem suporte nativo no main.py — ignorado quando false.
         env:
+          # ── Telegram ─────────────────────────────────────────────────
+          # Nomes exatos que settings.py/pydantic lê
           TELEGRAM_TOKEN:              ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID:            ${{ secrets.TELEGRAM_CHAT_ID }}
+
+          # ── Google Sheets ─────────────────────────────────────────────
           GOOGLE_SHEETS_KEY:           ${{ secrets.GOOGLE_SHEETS_KEY }}
+          # Aponta para o arquivo recriado no step anterior (raiz do projeto)
           GOOGLE_SERVICE_ACCOUNT_JSON: service_account.json
+
+          # ── Cloudinary ────────────────────────────────────────────────
+          # Formato obrigatório: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
           CLOUDINARY_URL:              ${{ secrets.CLOUDINARY_URL }}
+
+          # ── Shopee API ────────────────────────────────────────────────
           SHOPEE_APP_ID:               ${{ secrets.SHOPEE_APP_ID }}
           SHOPEE_SECRET_KEY:           ${{ secrets.SHOPEE_SECRET_KEY }}
+
           MAX_POSTS_PER_RUN:           ${{ github.event.inputs.max_posts || '1' }}
         run: |
           python main.py
