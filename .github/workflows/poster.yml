@@ -2,7 +2,6 @@ name: 🌿 Bot Esotéricas – Poster Automático
 
 on:
   schedule:
-    # Janela BRT 08:00 → 22:00, a cada 30 minutos
     - cron: "0 11 * * *"
     - cron: "30 11 * * *"
     - cron: "0 12 * * *"
@@ -58,12 +57,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          # Removido 'cache: "pip"' para evitar interferência
 
       - name: 📦 Instalar dependências
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          # Configura o Poetry para instalar no ambiente, sem tentar ser pacote
+          # Comando crucial: apenas instala dependências sem buildar o projeto
           poetry install --no-root
 
       - name: 🔑 Recriar arquivo de Service Account
@@ -83,7 +83,6 @@ jobs:
           SHOPEE_APP_ID:               ${{ secrets.SHOPEE_APP_ID }}
           SHOPEE_SECRET_KEY:           ${{ secrets.SHOPEE_SECRET_KEY }}
           MAX_POSTS_PER_RUN:           ${{ github.event.inputs.max_posts || '1' }}
-        # O uso de 'poetry run' é o que garante o sucesso da execução
         run: |
           poetry run python main.py
 
