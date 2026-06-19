@@ -592,19 +592,35 @@ test = ["objgraph", "psutil", "setuptools"]
 
 [[package]]
 name = "gspread"
-version = "6.2.1"
+version = "5.10.0"
 description = "Google Spreadsheets Python API"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "gspread-6.2.1-py3-none-any.whl", hash = "sha256:6d4ec9f1c23ae3c704a9219026dac01f2b328ac70b96f1495055d453c4c184db"},
-    {file = "gspread-6.2.1.tar.gz", hash = "sha256:2c7c99f7c32ebea6ec0d36f2d5cbe8a2be5e8f2a48bde87ad1ea203eff32bd03"},
+    {file = "gspread-5.10.0-py3-none-any.whl", hash = "sha256:f58b15d950ef5c45c8607edb3687188d5a543f2b66242f9c26fbb0d2cf36169d"},
+    {file = "gspread-5.10.0.tar.gz", hash = "sha256:2b6bba6dc111580170346a9bcd1893e0e8c52f67a9e537caec7b7a1e27c14435"},
 ]
 
 [package.dependencies]
 google-auth = ">=1.12.0"
 google-auth-oauthlib = ">=0.4.1"
+
+[[package]]
+name = "gspread-asyncio"
+version = "1.9.0"
+description = "asyncio wrapper for burnash's Google Spreadsheet API library, gspread"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "gspread_asyncio-1.9.0-py3-none-any.whl", hash = "sha256:a2aac5492e115ecba669488199a6f378ccbb28d79e4a2a25921451401c1ba3f5"},
+    {file = "gspread_asyncio-1.9.0.tar.gz", hash = "sha256:d19c26e179bec26311a3e616660a3cee31fba3336bfbb3ab6c67b776c2d99235"},
+]
+
+[package.dependencies]
+gspread = "==5.10.*"
+requests = "==2.*"
 
 [[package]]
 name = "h11"
@@ -1969,4 +1985,4 @@ dev = ["black (>=19.3b0) ; python_version >= \"3.6\"", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "5d48398cec5896d1070cfba69dc123cc89e9d7cad112e62efadfa353de432c83"
+content-hash = "4066c5153ad2803f9a903958201d9405d03b65dbdb80fe42890baaae9100b4fa"
