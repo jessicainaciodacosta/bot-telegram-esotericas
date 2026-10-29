@@ -24,3 +24,7 @@ data/*.xlsx
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# OpenCode / SpecKit - local tooling
+.opencode/
+.specify/
