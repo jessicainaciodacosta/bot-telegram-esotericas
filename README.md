@@ -17,6 +17,8 @@ The project is built following professional backend development standards:
 - **API Communication:** Asynchronous integration with the Telegram API and external partner APIs (e.g., Shopee GraphQL API).
 - **Data Persistence:** Google Sheets API integration (`gspread-asyncio`) for tracking and history.
 - **Automation & CI/CD:** Workflows configured via GitHub Actions for automated execution and maintenance.
+- **Robust Configuration & Validation:** Centralized environment management using pydantic-settings with automated data validation, custom validators for tokens/URLs, and fallback mechanisms.
+- **Domain Taxonomies:** Built-in category mapping and centralized Google Sheets column constants to ensure clean separation of concerns.
 
 ---
 
